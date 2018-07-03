@@ -14,6 +14,7 @@ from utils.time_utils import run_time
 from utils.color_log import Colorlog
 from utils.print_log import print_info
 
+
 cp_log = Colorlog("cp")
 
 
@@ -23,6 +24,7 @@ def get_dir_size_count(dir):
     :param dir:
     :return:
     """
+    print_info('开始计算…… ')
     size = 0
     count = 0
     for root, dirs, files in os.walk(dir):
@@ -89,7 +91,7 @@ def bytes2human(n):
 
 
 if __name__ == '__main__':
-    src = 'D://test1'
-    dst = 'D://copytest2'
-    upload_file(src, dst)
-    print_info(get_dir_size_count(dst))
+    src = 'E:\监控系统文档'
+    # dst = 'D://copytest2'
+    # upload_file(src, dst)
+    get_dir_size_count(src)
