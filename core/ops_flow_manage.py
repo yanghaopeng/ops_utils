@@ -134,9 +134,14 @@ def initworkdt(start, end):
     d = DataFlow()
     d.initCal(start, end)
 
+def abort_if_false(ctx, param, value):
+    if not value:
+        ctx.abort()
 
 @cli.command(context_settings=CONTEXT_SETTINGS)
-@click.confirmation_option(help='Are you sure you want to 中登重新校验 ?')
+@click.option('--yes', is_flag=True, callback=abort_if_false,
+              expose_value=False,
+              prompt='Are you sure you want to 中登重新校验 ?')
 def ccrc():
     """
         中登重新校验
