@@ -32,12 +32,12 @@ class Ora_util(object):
 
     def __init__(self, db_info=_db_info, arraysize=500):
         # 日志
-        self.db_log = my_logset.get_mylogger("oradb_access")
+        self.db_log = my_logset.get_mylogger("oradb_access", 'db.log')
         self.db_info = db_info
         self.conn = Ora_util.__getConn(db_info)
         self.cursor = self.conn.cursor()
         # 每次从数据库向Python的缓存返回arraysize=100条记录
-        self.db_log.debug('数据库已连接' )
+        # self.db_log.debug('数据库已连接' )
         self.cursor.arraysize = arraysize
 
     @staticmethod

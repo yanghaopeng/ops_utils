@@ -17,7 +17,8 @@ from conf import settings
 # 日志格式
 log_format = '[%(asctime)s - %(levelname)s - %(name)s - %(filename)s - %(funcName)s- %(lineno)d ] %(message)s '
 
-def get_mylogger(name):
+
+def get_mylogger(name, logfile = settings.LOG_FILE):
     """
     get log
     :param name:
@@ -28,8 +29,8 @@ def get_mylogger(name):
 
     console_handler = logging.StreamHandler()
     # 文件绝对路径
-    logfile_path = os.path.join(settings.LOG_DIR, "log", settings.LOG_FILE)
-    if not os.path.exists(logfile_path):
+    logfile_path = os.path.join(settings.LOG_DIR, "log", logfile)
+    if not os.path.exists(os.path.join(settings.LOG_DIR, "log")):
         # 创建log目录
         os.mkdir(os.path.join(settings.LOG_DIR, "log"))
     # 每天创建一个日志文件，文件数不超过20个

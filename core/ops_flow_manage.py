@@ -40,6 +40,10 @@ def hellocmd(name):
             bold=True))
 
 
+def abort_if_false(ctx, param, value):
+    if not value:
+        ctx.abort()
+
 @cli.command(context_settings=CONTEXT_SETTINGS)
 @click.argument('bankid', required=True)
 @click.argument('filecode', required=True)
@@ -58,6 +62,9 @@ def brecheck(bankid, filecode):
 
 @cli.command(context_settings=CONTEXT_SETTINGS)
 @click.argument('bankid', required=True)
+@click.option('--yes', is_flag=True, callback=abort_if_false,
+              expose_value=False,
+              prompt='Are you sure you want to 银行重跑 ?')
 def brerun(bankid):
     """
     银行重跑 参数: 银行代码(如:1051000)
@@ -134,9 +141,6 @@ def initworkdt(start, end):
     d = DataFlow()
     d.initCal(start, end)
 
-def abort_if_false(ctx, param, value):
-    if not value:
-        ctx.abort()
 
 @cli.command(context_settings=CONTEXT_SETTINGS)
 @click.option('--yes', is_flag=True, callback=abort_if_false,
