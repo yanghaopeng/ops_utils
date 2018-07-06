@@ -7,20 +7,15 @@
 
 import os
 import sys
-from colorama import init, Fore, Style
+
+from colorama import init
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)  # 加入环境变量
 from utils.oracle_utils import Ora_util
-from utils import my_logset
 from conf import settings
 from conf import db_set
-from utils.time_utils import is_valid_date
-from utils.time_utils import get_curr_time
-from conf.settings import cc_dir
-from utils import cmd_utils
-from utils.print_log import print_info, print_debug, print_error
-from prettytable import PrettyTable
+from utils.print_log import print_info
 from prettytable import from_db_cursor
 
 
