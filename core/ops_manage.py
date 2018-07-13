@@ -50,6 +50,10 @@ def hellocmd(name):
 @click.option('-t', default='a', required=True,
               type=click.Choice(['a', 'h']), prompt=True, help='检查磁盘空间,a表示所有空间，h表示空间大于50%')
 def dfcmd(t):
+    """
+    检查磁盘空间,a表示所有空间，h表示空间大于50%
+    使用 dfcmd -t a|h
+    """
     click.echo(click.style('检查磁盘空间', fg='green', bold=True))
     d = DiskCmd()
     type_dict = {'a': 'all', 'h': 'half'}
@@ -60,6 +64,11 @@ def dfcmd(t):
 @click.option('-t', default='all', required=True,
               type=click.Choice(['all'] + list(pshell.keys())), prompt=True, help=ps_str)
 def catps(t):
+    """
+    查看数据进程
+    使用 catps -t 
+    帮助 catps -h
+    """
     click.echo(click.style('检查数据进程%s' % t, fg='green', bold=True))
     p = PsCmd()
     p.ops_ps_cmd(op_type='cat', ps_name=t)
@@ -69,6 +78,11 @@ def catps(t):
 @click.option('-t', default='all', required=True,
               type=click.Choice(['all'] + list(pshell.keys())), prompt=True, help=ps_str)
 def startps(t):
+    """
+    启动数据进程
+    使用 startps -t 
+    帮助 startps -h
+    """
     click.echo(click.style('启动数据进程%s' % t, fg='green', bold=True))
     p = PsCmd()
     p.ops_ps_cmd(op_type='start', ps_name=t)
@@ -79,6 +93,11 @@ def startps(t):
               type=click.Choice(['all'] + list(pshell.keys())), prompt=True, help=ps_str)
 @click.confirmation_option(help='Are you sure you want to stopps ?')
 def stopps(t):
+    """
+    停止数据进程
+    使用 stopps -t 
+    帮助 stopps -h
+    """
     click.echo(click.style('停止数据进程%s' % t, fg='green', bold=True))
     p = PsCmd()
     p.ops_ps_cmd(op_type='stop', ps_name=t)

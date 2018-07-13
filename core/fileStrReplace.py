@@ -9,8 +9,10 @@ import sys
 import os
 import random
 import string
-from colorama import Fore,Style,init
-import platform
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))    
+sys.path.append(BASE_DIR)  # 加入环境变量                                   
+from utils.print_log import print_info,print_warn,print_error                                   
+
 
 def print_arg(arg):
     """
@@ -21,9 +23,9 @@ def print_arg(arg):
 
     for ind, val in enumerate(arg):
         if ind == 0:
-            print_color(Fore.YELLOW,r"------执行%s输入参数为--------" % val)
+            print_warn(r"------执行%s输入参数为--------" % val)
         else:
-            print(val, end=",")
+            print_info(val, end=",")
 
 
 def print_color(color, mes=""):
@@ -44,8 +46,8 @@ def main():
     if len(v_arg) != 4:
         # print(platform.system())
         print_arg(v_arg)
-        print_color(Fore.RED, "---参数输入错误--")
-        print_color(Fore.RED, "fileStrReplace.py 文件名 旧字符串 新字符串")
+        print_warn("---参数输入错误--")
+        print_warn("fileStrReplace.py 文件名 旧字符串 新字符串")
     else:
         f_name = v_arg[1].strip()
         old_str = v_arg[2].strip()  # 旧字符
@@ -53,7 +55,7 @@ def main():
         f_new_name = "%s.new" % f_name
         replace_count = 0  # 字符替换次数
         if not os.path.exists(f_name):
-            print_color(Fore.YELLOW, "%s文件不存在" % f_name)
+            print_error("%s文件不存在" % f_name)
         else:
             f_new = open(f_new_name, 'w')
             f = open(f_name, "r", )
@@ -70,18 +72,18 @@ def main():
             f_new.close()
 
             if replace_count == 0:
-                print_color(Fore.YELLOW, "字符%s不存在" % old_str)
+                print_warn("字符%s不存在" % old_str)
             else:
                 bak_f = f_name + ''.join(random.sample(string.digits, 6))
                 os.rename(f_name, bak_f)  # 备份旧文件
                 os.rename(f_new_name, f_name)  # 把新文件名字改成原文件的名字，就把之前的覆盖掉了
-                print_color(Fore.GREEN, "文件替换成功,[字符%s替换%s]共%s行，源文件备份[%s]" % (old_str, new_str, replace_count, bak_f))
+                print_info("文件替换成功,[字符%s替换%s]共%s行，源文件备份[%s]" % (old_str, new_str, replace_count, bak_f))
 
 
 if __name__ == '__main__':
     # 获得系统参数
     v_arg = sys.argv
-    init(autoreset=True)  # 初始化，并且设置颜色设置自动恢复
+    # init(autoreset=True)  # 初始化，并且设置颜色设置自动恢复
     main()
     # print_color(Style.RESET_ALL)  # 还原默认颜色
 
