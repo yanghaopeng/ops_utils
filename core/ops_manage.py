@@ -83,10 +83,12 @@ def startps(t):
     使用 startps -t 
     帮助 startps -h
     """
-    click.echo(click.style('启动数据进程%s' % t, fg='green', bold=True))
-    p = PsCmd()
-    p.ops_ps_cmd(op_type='start', ps_name=t)
-
+    try:
+        click.echo(click.style('启动数据进程%s' % t, fg='green', bold=True))
+        p = PsCmd()
+        p.ops_ps_cmd(op_type='start', ps_name=t)
+    except KeyboardInterrupt:
+        print('Control-C pressed')  # Control-C pressed. Try again.
 
 @cli.command(context_settings=CONTEXT_SETTINGS)
 @click.option('-t', default='all', required=True,
