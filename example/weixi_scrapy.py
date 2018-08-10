@@ -5,18 +5,20 @@
 # @File    : weixi_scrapy.py
 # @Software: PyCharm
 
-from selenium import webdriver
-import time
 import json
 import random
-import requests
 import re
+import time
+
+import requests
+from selenium import webdriver
+
 account_name = "908099665@qq.com"
 password = "yang_1982"
 # 登录微信公众号，获取登录之后的cookies信息，并保存到本地文本中
 
 
-def weChat_login():
+def wechat_login():
 
     # 用webdriver启动谷歌浏览器
     print("启动浏览器，打开微信公众号登录界面")
@@ -53,6 +55,7 @@ def weChat_login():
     with open('cookie.txt', 'w+', encoding='utf-8') as f:
         f.write(cookie_str)
     print("cookies信息已保存到本地")
+    driver.quit()
 
 # 爬取微信公众号文章，并存在本地文本中
 
@@ -61,22 +64,31 @@ def get_content(query):
     # query为要爬取的公众号名称
     # 公众号主页
     url = 'https://mp.weixin.qq.com'
+    from requests.packages import urllib3
+    urllib3.disable_warnings()  # 关闭警告
     # 设置headers
     header = {
         "HOST": "mp.weixin.qq.com",
-        "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0"
+        "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36"
+
     }
 
     # 读取上一步获取到的cookies
     with open('cookie.txt', 'r', encoding='utf-8') as f:
         cookie = f.read()
     cookies = json.loads(cookie)
+    # 增加重试连接次数
+    session = requests.Session()
+    session.keep_alive = False
+    # 增加重试连接次数
+    session.adapters.DEFAULT_RETRIES = 511
+    time.sleep(5)
 
-    # 转载图文，转载图文消息
     # 登录之后的微信公众号首页url变化为：https://mp.weixin.qq.com/cgi-bin/home?t=home/index&lang=zh_CN&token=1849751598，从这里获取token信息
-    response = requests.get(url=url, cookies=cookies)
-    token = re.findall(r'token=(\d+)', str(response.url))[0]
+    response = session.get(url=url, cookies=cookies, verify=False)
 
+    token = re.findall(r'token=(\d+)', str(response.url))[0]
+    time.sleep(2)
     # 搜索微信公众号的接口地址
     search_url = 'https://mp.weixin.qq.com/cgi-bin/searchbiz?'
     # 搜索微信公众号接口需要传入的参数，有三个变量：微信公众号token、随机数random、搜索的微信公众号名字
@@ -92,13 +104,14 @@ def get_content(query):
         'count': '5'
     }
     # 打开搜索微信公众号接口地址，需要传入相关参数信息如：cookies、params、headers
-    search_response = requests.get(
+    search_response = session.get(
         search_url,
         cookies=cookies,
         headers=header,
         params=query_id)
     # 取搜索结果中的第一个公众号
     lists = search_response.json().get('list')[0]
+    print(lists)
     # 获取这个公众号的fakeid，后面爬取公众号文章需要此字段
     fakeid = lists.get('fakeid')
 
@@ -119,7 +132,7 @@ def get_content(query):
         'type': '9'
     }
     # 打开搜索的微信公众号文章列表页
-    appmsg_response = requests.get(
+    appmsg_response = session.get(
         appmsg_url,
         cookies=cookies,
         headers=header,
@@ -130,6 +143,7 @@ def get_content(query):
     num = int(int(max_num) / 5)
     # 起始页begin参数，往后每页加5
     begin = 0
+    seq = 0
     while num + 1 > 0:
         query_id_data = {
             'token': token,
@@ -145,6 +159,7 @@ def get_content(query):
             'type': '9'
         }
         print('正在翻页：--------------', begin)
+        time.sleep(5)
 
         # 获取每一页文章的标题和链接地址，并写入本地文本中
         query_fakeid_response = requests.get(
@@ -153,31 +168,36 @@ def get_content(query):
             headers=header,
             params=query_id_data)
         fakeid_list = query_fakeid_response.json().get('app_msg_list')
-        for item in fakeid_list:
-            content_link = item.get('link')
-            content_title = item.get('title')
-            fileName = query + '.txt'
-            with open(fileName, 'a', encoding='utf-8') as fh:
-                fh.write(content_title + ":\n" + content_link + "\n")
+        if fakeid_list:
+            for item in fakeid_list:
+                content_link = item.get('link')
+                content_title = item.get('title')
+                fileName = query + '.txt'
+                seq += 1
+                with open(fileName, 'a', encoding='utf-8') as fh:
+                    fh.write(
+                        str(seq) +
+                        "|" +
+                        content_title +
+                        "|" +
+                        content_link +
+                        "\n")
         num -= 1
         begin = int(begin)
         begin += 5
-        time.sleep(2)
 
 
 if __name__ == '__main__':
-    try:
+
         # 登录微信公众号，获取登录之后的cookies信息，并保存到本地文本中
-        weChat_login()
-        query = "python"
-        print("开始爬取公众号：" + query)
-        get_content(query)
-        print("爬取完成")
-        # #登录之后，通过微信公众号后台提供的微信公众号文章接口爬取文章
-        # for query in gzlist:
-        #     #爬取微信公众号文章，并存在本地文本中
-        #     print("开始爬取公众号："+query)
-        #     get_content(query)
-        #     print("爬取完成")
-    except Exception as e:
-        print(str(e))
+    wechat_login()
+    query = "寒飞论债"
+    print("开始爬取公众号：" + query)
+    get_content(query)
+    print("爬取完成")
+    # #登录之后，通过微信公众号后台提供的微信公众号文章接口爬取文章
+    # for query in gzlist:
+    #     #爬取微信公众号文章，并存在本地文本中
+    #     print("开始爬取公众号："+query)
+    #     get_content(query)
+    #     print("爬取完成")
