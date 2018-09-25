@@ -157,8 +157,8 @@ class Ora_util(object):
         self.execute(query_sql % locals(), cond_dict)
         return self.get_rows()
 
-        # 执行sql，参数一：sql语句，如select * from python_modules where module_name=:module_name
-        # 参数二：参数字典{'字段1'：'值1','字段2':'值2'} 如{module_name:Oracle}
+    # 执行sql，参数一：sql语句，如select * from python_modules where module_name=:module_name
+    # 参数二：参数字典{'字段1'：'值1','字段2':'值2'} 如{module_name:Oracle}
     def queryBySql(self, sql, args={}):
         self.execute(sql, args)
         return self.get_rows()

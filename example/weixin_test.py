@@ -53,7 +53,7 @@ def get_wx_url_by_sougou_search_html(sougou_search_html):
 # 使用webdriver 加载公众号主页内容，主要是js渲染的部分
 
 def get_selenium_js_html(url):
-    browser = webdriver.Chrome()
+    browser = webdriver.PhantomJS()
 
     browser.get(url)
 
@@ -61,9 +61,9 @@ def get_selenium_js_html(url):
 
     # 执行js得到整个页面内容
 
-    html = browser.execute_script("return document.documentElement.outerHTML")
+    html = browser.execute_script("return document.documentElement.outerHTML")  # 获得html内容
 
-    browser.close()
+    browser.quit()
 
     return html
 
@@ -247,5 +247,6 @@ def run(keywords):
         articles_list = switch_arctiles_to_list(articles)
 
         return [content['title'] for content in articles_list]
+
 
 run("明晰笔谈")
