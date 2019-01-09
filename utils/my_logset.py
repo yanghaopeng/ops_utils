@@ -15,7 +15,7 @@ from colorama import Fore, Style, init
 from conf import settings
 
 # 日志格式
-log_format = '[%(asctime)s - %(levelname)s - %(name)s - %(filename)s - %(funcName)s- %(lineno)d ] %(message)s '
+log_format = '[%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d ] %(message)s '
 
 
 def get_mylogger(name, logfile = settings.LOG_FILE):

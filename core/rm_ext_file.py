@@ -15,11 +15,12 @@ import argparse
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)  # 加入环境变量
 from utils import my_logset
+from utils import file_util
 
 
 root_path = '/root/files/'  # 要删除文件根目录
 tail_path = ['zzjc', 'zd']   # 要删除文件上级目录名
-tail_prefix = '.zip'           # 要删除文件的后缀
+tail_prefix = '.sh'           # 要删除文件的后缀
 rm_log = my_logset.get_mylogger("rm-ext-file")
 init(autoreset=True)  # 初始化，并且设置颜色设置自动恢复
 
@@ -54,9 +55,9 @@ def print_warn(msg):
 def get_diff_days(d1, d2):
     "获得两个日期差"
     try:
-        d1_day = datetime(int(d1.strip()[:3]), int(
+        d1_day = datetime(int(d1.strip()[:4]), int(
             d1.strip()[4:6]), int(d1.strip()[6:]))
-        d2_day = datetime(int(d2.strip()[:3]), int(
+        d2_day = datetime(int(d2.strip()[:4]), int(
             d2.strip()[4:6]), int(d2.strip()[6:]))
 
         return (d1_day - d2_day).days  # 350
@@ -79,6 +80,7 @@ elif diff_days < 100:
     print_warn('删除文件的开始日期[%s] 应该小于今日[%s] 100天以上' % (dt_m + '01', today))
 else:
     rm_count = 0
+    rm_size = 0
     input_path = os.path.join(root_path, dt_m[4:], dt_m[0:4])  # 按年月拼接目录
     if os.path.isdir(input_path):
         for r, ds, files in os.walk(input_path):
@@ -87,20 +89,24 @@ else:
                 for f in rm_files:
                     if(f.endswith(tail_prefix)):  # 删除指定后缀文件
                         try:
-                            res = os.remove(os.path.join(r, f))
+                            rm_f = os.path.join(r, f)
+                            rm_f_size = os.path.getsize(rm_f)
+                            res = os.remove(rm_f)
                             if res is None:
                                 rm_log.info(
                                     "Delete file [{}]".format(
                                         os.path.join(
                                             r, f)))
                                 rm_count += 1
+                                rm_size += rm_f_size
                         except Exception as e:
                             print(
                                 'delete file [ %s ] fail ' %
-                                os.path.join(
-                                    r, f), e)
+                                rm_f, e)
 
         else:
-            rm_log.info('Delete files count [%s]' % rm_count)
+            rm_log.info(
+                'Delete files count [%s] size [%s]' %
+                (rm_count, file_util.bytes2human(rm_size)))
     else:
         print_warn('目录[%s]不存在!' % input_path)

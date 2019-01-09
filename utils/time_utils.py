@@ -29,8 +29,8 @@ def get_curr_time():
 # 使用getdiffdays('20180901','20181009')
 def get_diff_days(d1, d2):
     try :
-        d1_day = datetime(int(d1.strip()[:3]), int(d1.strip()[4:6]), int(d1.strip()[6:]))
-        d2_day = datetime(int(d2.strip()[:3]), int(d2.strip()[4:6]), int(d2.strip()[6:]))
+        d1_day = datetime(int(d1.strip()[:4]), int(d1.strip()[4:6]), int(d1.strip()[6:]))
+        d2_day = datetime(int(d2.strip()[:4]), int(d2.strip()[4:6]), int(d2.strip()[6:]))
         return (abs(d1_day - d2_day).days)  # 350
     except ValueError as e:
         print('Error,日期值错误',e)
