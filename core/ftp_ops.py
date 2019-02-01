@@ -86,7 +86,7 @@ class FTP_OPS(object):
             f.write(data)
             cmpsize += len(data)
             print(
-                '\n', 'download process:%.2f%%' %
+                 '\b'*30, 'download process:%.2f%%' %
                 (float(cmpsize) / remote_file_size * 100))
             # ftp.retrbinary(
             #     'RETR {0}'.format(ftp_file_path),

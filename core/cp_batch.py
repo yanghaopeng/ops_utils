@@ -13,7 +13,7 @@ sys.path.append(BASE_DIR)  # 加入环境变量
 from utils.time_utils import run_time
 from utils.color_log import Colorlog
 from utils.print_log import print_info
-
+from utils import cmd_utils
 
 cp_log = Colorlog("cp")
 
@@ -91,7 +91,7 @@ def bytes2human(n):
 
 
 if __name__ == '__main__':
-    src = 'E:\监控系统文档'
+    src = cmd_utils.cmd_exec("pwd")['res'].strip()
     # dst = 'D://copytest2'
     # upload_file(src, dst)
     get_dir_size_count(src)
