@@ -97,6 +97,38 @@ class GP_dbutils(object):
         return rows
 
     @run_time
+    def execute_bulk_query(self, query: str, args: tuple = ()):
+        """ results are returned as a list of dicts"""
+        if not self.conn:
+            raise psycopg2.InterfaceError("null connection")
+
+        rows = None
+        self.db_log.debug('execute sql: {}'.format(query))
+        try:
+            with self.conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as curs:
+                count = 0
+                # 批量查询大小
+                batch_size = 1000
+                # curs.itersize = 1000000 # 设置服务端游标每次返回数目
+                curs.execute(query, args)
+                while True:
+                    count = count + 1
+                    # 每次获取时会从上次游标的位置开始移动size个位置，返回size条数据
+                    data = curs.fetchmany(batch_size)
+                    # 数据为空的时候中断循环
+                    if not data:
+                        break
+                    else:
+                        print(data[-1])  # 得到最后一条
+                    print('获取%s到%s数据成功' % ((count - 1) * batch_size, count * batch_size))
+        except Exception as e:
+            self.db_log.error(str(e))
+            raise e
+
+        return None
+
+
+    @run_time
     def execute_update(self, sql: str, args: tuple = ()) -> int:
         """ perform a write query
         query -- the query string with optional %s placeholders
@@ -130,7 +162,7 @@ class GP_dbutils(object):
         try:
             with self.conn.cursor() as curs:
                 psycopg2.extras.execute_values(
-                    curs, sql, args_list, page_size=100)
+                    curs, sql, args_list, page_size=1000)
                 self.commit()
             return len(args_list)
         except Exception as e:

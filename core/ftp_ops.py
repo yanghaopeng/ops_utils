@@ -13,6 +13,8 @@ from ftplib import error_perm
 import os
 import socket
 import time
+import math
+import sys
 from utils import file_util
 
 
@@ -64,10 +66,10 @@ class FTP_OPS(object):
 
         # 将传输模式改为二进制模式 ,避免提示 ftplib.error_perm: 550 SIZE not allowed in ASCII
         ftp.voidcmd('TYPE I')
-        remote_file_size = ftp.size(ftp_file_path)  # 文件大小
+        remote_file_size = ftp.size(ftp_file_path)  # 文件总大小
 
         print('remote filesize [{}]'.format(remote_file_size))
-        cmpsize = 0
+        cmpsize = 0   # 下载文件初始大小
         lsize = 0
         # check local file isn't exists and get the local file size
         if os.path.exists(dst_file_path):
@@ -85,9 +87,10 @@ class FTP_OPS(object):
                 break
             f.write(data)
             cmpsize += len(data)
-            print(
-                 '\b'*30, 'download process:%.2f%%' %
-                (float(cmpsize) / remote_file_size * 100))
+            self.progressbar(cmpsize, remote_file_size)
+            # print(
+            #      '\b'*30, 'download process:%.2f%%' %
+            #     (float(cmpsize) / remote_file_size * 100))
             # ftp.retrbinary(
             #     'RETR {0}'.format(ftp_file_path),
             #     f.write,
@@ -109,6 +112,41 @@ class FTP_OPS(object):
             print('local filesize [{}] md5:[{}]'.format(
                 file_size, file_util.get_md5(dst_file_path)))
 
+        def progressbar(cur, total):
+            """
+              进度条显示
+              cur表示当前的数值，total表示总的数值。
+            :param cur:
+            :param total:
+            :return:
+            """
+            percent = '{:.2%}'.format(cur / total)
+            sys.stdout.write('\r')
+            sys.stdout.write('[%-50s] %s' % ('=' * int(math.floor(cur * 50 / total)), percent))
+            sys.stdout.flush()
+            if cur == total:
+                sys.stdout.write('\n')
+
+        # 从本地上传文件到ftp
+        def upload_file(ftp, remotepath, localpath):
+            buffer_size = 10240  # 默认是8192
+            ftp = self.ftp_connect()
+            print(ftp.getwelcome())  # 显示登录ftp信息
+
+            # 将传输模式改为二进制模式 ,避免提示 ftplib.error_perm: 550 SIZE not allowed in ASCII
+            ftp.voidcmd('TYPE I')
+            ftp.mkd(remotepath)
+            try:
+                ftp.cwd(remotepath)  # 进入远程目录
+            except error_perm:
+                try:
+                    ftp.mkd(remotepath) # 创建远程目录
+                except error_perm:
+                    print ("you have no authority to make dir")
+            fp = open(localpath, 'rb')
+            ftp.storbinary('STOR ' + remotepath, fp, buffer_size)
+            ftp.set_debuglevel(0)
+            fp.close()
 
 
 if __name__ == '__main__':

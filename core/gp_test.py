@@ -40,26 +40,27 @@ if __name__ == '__main__':
 
     # 批量查询大小
     batch_size = 1000
-    gp_uplist = []
-    for i in range(2000, 100000):
-        gp_uplist.append((i,'def%s'%i))
+    # gp_uplist = []
+    # for i in range(20, 10000000):
+    #     gp_uplist.append((i,'def%s'%i))
     # print(gp_uplist)
 
     # 开始时间
     start_time = datetime.now()
     # 批量提交数据execute_values性能大于executemany
-
-    sql = "UPDATE public.gp_test SET data = TEST.data  " \
-          "FROM (VALUES %s) AS TEST(num, data) " \
-          "WHERE public.gp_test.num = TEST.num"
-    # 批量更新语句模版 UPDATE TABLE SET TABLE.COL = XX.col
-    # FROM (VALUES %s) AS XX(id_col,col)
-    # WHERE TABLE.id_col = XX.id_col
-    # XX为别名
-    count = gpdb.execute_bulk_update(sql, gp_uplist)
-    print(count)
-    data = gpdb.execute_query("select  *  from gp_test order by id")
-    print(data[-1])
+    #
+    sql ="INSERT INTO public.gp_test (num, data) VALUES %s"
+    # # sql = "UPDATE public.gp_test SET data = TEST.data  " \
+    # #       "FROM (VALUES %s) AS TEST(num, data) " \
+    # #       "WHERE  public.gp_test.num = TEST.num"
+    # # 批量更新语句模版 UPDATE TABLE SET TABLE.COL = XX.col
+    # # FROM (VALUES %s) AS XX(id_col,col)
+    # # WHERE TABLE.id_col = XX.id_col
+    # # XX为别名
+    # count = gpdb.execute_bulk_update(sql,  [(i, 'def%s'%i) for i in range(20, 6000000)])
+    # print(count)
+    data = gpdb.execute_bulk_query("select * from gp_test ")
+    # print(data[-1])
     # count = 0
     #
     # while True:
