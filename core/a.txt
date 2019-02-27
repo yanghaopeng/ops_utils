@@ -1,2 +1,0 @@
-b|b|bbb|cd
-c|d|ddd|ddd

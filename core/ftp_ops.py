@@ -19,6 +19,7 @@ from utils import file_util
 
 
 class FTP_OPS(object):
+
     def __init__(self, host, username, password, port):
         """
         初始化ftp
