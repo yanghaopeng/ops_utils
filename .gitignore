@@ -107,3 +107,4 @@ log/
 core/data_flow.py
 .idea/
 core/ops_flow_manage.py
+core/ftp_csrc.py

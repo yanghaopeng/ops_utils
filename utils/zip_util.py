@@ -12,6 +12,7 @@ from utils import my_logset
 from utils.time_utils import run_time
 from threading import currentThread
 
+
 class ZFile(object):
 
     def __init__(self, log_file):
@@ -25,19 +26,25 @@ class ZFile(object):
         :param fz_name: 压缩后文件名
         :return:
         """
+        flag = False
         if fs_name and fz_name:
             try:
                 with zipfile.ZipFile(fz_name, mode='w', compression=zipfile.ZIP_DEFLATED) as zipf:
                     zipf.write(fs_name)
-                    print("%s is running [%s] " % (currentThread().getName(), fs_name))
+                    print(
+                        "%s is running [%s] " %
+                        (currentThread().getName(), fs_name))
                     self.db_log.info('压缩文件[{}]成功'.format(fs_name))
                 if zipfile.is_zipfile(fz_name):
                     os.remove(fs_name)
                     self.db_log.info('删除文件[{}]成功'.format(fs_name))
+                flag = True
             except Exception as e:
                 self.db_log.error('压缩文件[{}]失败'.format(fs_name), str(e))
+
         else:
             print('文件名不能为空')
+        return {'file_name': fs_name, 'flag': flag}
 
     def unzip_file(self, fz_name, path):
         """
@@ -46,21 +53,28 @@ class ZFile(object):
         :param path: 解压缩路径
         :return:
         """
+        flag = False
         try:
             if zipfile.is_zipfile(fz_name):  # 检查是否为zip文件
                 with zipfile.ZipFile(fz_name, 'r') as zipf:
                     for p in zipf.namelist():
-                         zipf.extract(p, path)  # 解压缩文件
-                    print("%s is running [%s] " % (currentThread().getName(), fz_name))
+                        zipf.extract(p, path)  # 解压缩文件
+                    print(
+                        "%s is running [%s] " %
+                        (currentThread().getName(), fz_name))
                     self.db_log.info('解压缩文件[{}]成功'.format(fz_name))
+                flag = True
         except Exception as e:
             self.db_log.error('解压缩文件[{}]失败'.format(fz_name), str(e))
+        return {'file_name': fz_name, 'flag': flag}
 
 
 if __name__ == '__main__':
     from concurrent.futures import ThreadPoolExecutor
     from threading import currentThread
-    import os, time, random
+    import os
+    import time
+    import random
     zf = ZFile('zip_test.log')
     # os.chdir('F:\test\data20180206\14120000\test')
     dir = 'F://test/data/20180206/'
