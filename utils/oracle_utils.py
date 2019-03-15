@@ -29,10 +29,10 @@ class Ora_util(object):
 
     __pool = None  # 连接池对象
     _db_info = settings.prod_db
+    db_log = my_logset.get_mylogger("oradb_access", 'db.log')
 
     def __init__(self, db_info=_db_info, arraysize=500):
         # 日志
-        self.db_log = my_logset.get_mylogger("oradb_access", 'db.log')
         self.db_info = db_info
         self.conn = Ora_util.__getConn(db_info)
         self.cursor = self.conn.cursor()

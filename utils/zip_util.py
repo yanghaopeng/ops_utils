@@ -14,6 +14,9 @@ from threading import currentThread
 
 
 class ZFile(object):
+    """
+    文件压缩
+    """
 
     def __init__(self, log_file):
         self.db_log = my_logset.get_mylogger("zip", log_file)
