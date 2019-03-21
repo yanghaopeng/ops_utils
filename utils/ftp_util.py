@@ -35,14 +35,16 @@ class FTP_OPS(object):
         连接ftp
         :return:
         """
+        socket.setdefaulttimeout(60)  # 超时FTP时间设置为60秒
         ftp = FTP()
-        ftp.encoding = 'utf-8'
+        ftp.connect(host=self.ftp_ip, port=self.ftp_port)
         ftp.set_debuglevel(2)  # 开启调试模式
-        try:
-            ftp.connect(host=self.ftp_ip, port=self.ftp_port)  # 连接ftp
-            ftp.login(self.ftp_user, self.ftp_pwd)  # 登录ftp
+        ftp.encoding = 'utf-8'
 
-            self.db_log.info(ftp.getwelcome())  # 打印欢迎信息
+        try:
+            ftp.login(self.ftp_user, self.ftp_pwd)
+            self.db_log.info('[{}]login ftp {}'.format(self.ftp_user,ftp.getwelcome()))  # 打印欢迎信息
+
         except(socket.error, socket.gaierror):  # ftp 连接错误
             self.db_log.warn("ERROR: cannot connect [{}:{}]".format(self.ftp_ip, self.ftp_port))
             return None
@@ -68,17 +70,28 @@ class FTP_OPS(object):
         buffer_size = 10240  # 默认是8192
         print(ftp.getwelcome())  # 显示登录ftp信息
 
-        # 将传输模式改为二进制模式 ,避免提示 ftplib.error_perm: 550 SIZE not allowed in ASCII
-        ftp.voidcmd('TYPE I')
-        fp = open(os.path.join(localpath,file), 'rb')
+
+        fp = open(os.path.join(localpath, file), 'rb')
+
         try:
-            ftp.mkd(remotepath)  # 创建远程目录
-            ftp.cwd(remotepath)  # 进入远程目录
-            ftp.storbinary('STOR ' + remotepath, fp, buffer_size)
+
+            if remotepath in ftp.nlst():
+                ftp.cwd(remotepath)  # 进入远程目录
+                self.db_log.info("found folder [{}] in ftp server, upload processing.".format(remotepath))
+            else:
+                self.db_log.info("don't found folder [{}] in ftp server, try to build it.".format(remotepath))
+                ftp.mkd(remotepath)# 创建远程目录
+                ftp.cwd(remotepath)  # 进入远程目录
+
+            print('进入目录', ftp.pwd())
+            # 将传输模式改为二进制模式 ,避免提示 ftplib.error_perm: 550 SIZE not allowed in ASCII
+            ftp.voidcmd('TYPE I')
+            ftp.storbinary('STOR ' + file, fp, buffer_size)
             ftp.set_debuglevel(0)
+            self.db_log.info("上传文件 [{}] 成功".format(file))
             flag = True
         except Exception as e:
-            self.db_log.warn('文件[{}]传输有误,{}'.format(localpath, str(e)))
+            self.db_log.warn('文件[{}]传输有误,{}'.format(file, str(e)))
         finally:
             fp.close()
 
@@ -98,6 +111,8 @@ class FTP_OPS(object):
         # 将传输模式改为二进制模式 ,避免提示 ftplib.error_perm: 550 SIZE not allowed in ASCII
         ftp.voidcmd('TYPE I')
         remote_file_size = ftp.size(ftp_file_path)  # 文件总大小
+
+
 
         print('remote filesize [{}]'.format(remote_file_size))
         cmpsize = 0  # 下载文件初始大小
@@ -158,3 +173,12 @@ class FTP_OPS(object):
             sys.stdout.flush()
             if cur == total:
                 sys.stdout.write('\n')
+
+if __name__ == '__main__':
+    FTP_IP = '10.1.208.41'
+    FTP_PORT = 21
+    FTP_USER = 'tscms'
+    FTP_PWD = 'tscms'
+    CSRC_LOG_FILE = 'test_csrc.log'
+    ftp_obj = FTP_OPS(CSRC_LOG_FILE, FTP_IP, FTP_PORT, FTP_USER, FTP_PWD)
+    ftp_obj.ftp_connect()

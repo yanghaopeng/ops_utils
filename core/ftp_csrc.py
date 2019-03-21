@@ -218,7 +218,7 @@ def ftp_upload(remote_dir,local_dir):
     :return:
     """
     ftp_obj = FTP_OPS(CSRC_LOG_FILE,FTP_IP,FTP_PORT,FTP_USER,FTP_PWD)
-    ftp_executor = ThreadPoolExecutor(6, 'ftp_thread')  # 线程池
+    ftp_executor = ThreadPoolExecutor(2, 'ftp_thread')  # 线程池
     start = time.time()
     if os.path.isdir(local_dir):  # 判断是否为目录
         os.chdir(local_dir)
@@ -228,7 +228,7 @@ def ftp_upload(remote_dir,local_dir):
                 os.path.join(local_dir, file))  # 得到文件前缀和后缀名
             if len(file_prefix) > 1 and 'zip' in file_prefix[1]:
                 ftp = ftp_obj.ftp_connect()
-                print(ftp)
+        #         print(ftp)
                 future = ftp_executor.submit(ftp_obj.upload_file,
                                              ftp, remote_dir, local_dir, file)  # 异步提交任务压缩文件
 
@@ -237,10 +237,10 @@ def ftp_upload(remote_dir,local_dir):
         print("++++>")
         for r in res:
             print(r.result())  # 打印结果
-                # if r.result.get('flag'):
-                #     update_csrc({'FILE_COMPRE_FLG': 'S'}, {'FILE_NAME': r.result.get('file_name')})
-                # else:
-                #     update_csrc({'FILE_COMPRE_FLG': 'F'}, {'FILE_NAME': r.result.get('file_name')})
+            if r.result().get('flag'):
+                update_csrc({'file_send_flg': 'S'}, {'file_name': r.result().get('file_name')})
+            else:
+                update_csrc({'file_send_flg': 'F'}, {'file_name': r.result().get('file_name')})
 
         end = time.time()
         print(end - start)
@@ -257,7 +257,7 @@ def main():
     file_li = filter_file(src_new,'new')
     zip_file(src_new,'F://test/data/data/upload/',file_li)
 
-    ftp_upload('/home/ap/tscms/SC/10620000','F://test/data/data/upload/')
+    ftp_upload('test222','F://test/data/data/upload/')
 
 
 
