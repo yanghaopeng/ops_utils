@@ -22,20 +22,20 @@ class FTP_OPS(object):
     """
     ftp文件操作
     """
-    def __init__(self, log_file,ftp_ip,ftp_port,ftp_user,ftp_pwd):
+
+    def __init__(self, log_file, ftp_ip, ftp_port, ftp_user, ftp_pwd):
         self.db_log = my_logset.get_mylogger("ftp", log_file)
         self.ftp_ip = ftp_ip
         self.ftp_port = ftp_port
         self.ftp_user = ftp_user
         self.ftp_pwd = ftp_pwd
 
-
     def ftp_connect(self):
         """
         连接ftp
         :return:
         """
-        socket.setdefaulttimeout(60)  # 超时FTP时间设置为60秒
+        socket.setdefaulttimeout(160)  # 超时FTP时间设置为60秒
         ftp = FTP()
         ftp.connect(host=self.ftp_ip, port=self.ftp_port)
         ftp.set_debuglevel(2)  # 开启调试模式
@@ -43,10 +43,15 @@ class FTP_OPS(object):
 
         try:
             ftp.login(self.ftp_user, self.ftp_pwd)
-            self.db_log.info('[{}]login ftp {}'.format(self.ftp_user,ftp.getwelcome()))  # 打印欢迎信息
+            self.db_log.info(
+                '[{}]login ftp {}'.format(
+                    self.ftp_user,
+                    ftp.getwelcome()))  # 打印欢迎信息
 
         except(socket.error, socket.gaierror):  # ftp 连接错误
-            self.db_log.warn("ERROR: cannot connect [{}:{}]".format(self.ftp_ip, self.ftp_port))
+            self.db_log.warn(
+                "ERROR: cannot connect [{}:{}]".format(
+                    self.ftp_ip, self.ftp_port))
             return None
 
         except error_perm:  # 用户登录认证错误
@@ -58,7 +63,8 @@ class FTP_OPS(object):
         return ftp
 
     @run_time
-    def upload_file(self, ftp: FTP, remotepath: str, localpath: str, file:str):
+    def upload_file(self, ftp: FTP, remotepath: str,
+                    localpath: str, file: str):
         """
          # 从本地上传文件到ftp
         :param ftp: ftp对象
@@ -70,28 +76,26 @@ class FTP_OPS(object):
         buffer_size = 10240  # 默认是8192
         print(ftp.getwelcome())  # 显示登录ftp信息
 
-
         fp = open(os.path.join(localpath, file), 'rb')
 
         try:
+            ftp.cwd(remotepath)  # 进入远程目录
+            self.db_log.info(
+                    "found folder [{}] in ftp server, upload processing.".format(remotepath))
 
-            if remotepath in ftp.nlst():
-                ftp.cwd(remotepath)  # 进入远程目录
-                self.db_log.info("found folder [{}] in ftp server, upload processing.".format(remotepath))
-            else:
-                self.db_log.info("don't found folder [{}] in ftp server, try to build it.".format(remotepath))
-                ftp.mkd(remotepath)# 创建远程目录
-                ftp.cwd(remotepath)  # 进入远程目录
 
             print('进入目录', ftp.pwd())
-            # 将传输模式改为二进制模式 ,避免提示 ftplib.error_perm: 550 SIZE not allowed in ASCII
+            # 将传输模式改为二进制模式 ,避免提示 ftplib.error_perm: 550 SIZE not allowed in
+            # ASCII
             ftp.voidcmd('TYPE I')
             ftp.storbinary('STOR ' + file, fp, buffer_size)
             ftp.set_debuglevel(0)
             self.db_log.info("上传文件 [{}] 成功".format(file))
             flag = True
-        except Exception as e:
+        except error_perm as e:
             self.db_log.warn('文件[{}]传输有误,{}'.format(file, str(e)))
+        except TimeoutError:
+            pass
         finally:
             fp.close()
 
@@ -111,8 +115,6 @@ class FTP_OPS(object):
         # 将传输模式改为二进制模式 ,避免提示 ftplib.error_perm: 550 SIZE not allowed in ASCII
         ftp.voidcmd('TYPE I')
         remote_file_size = ftp.size(ftp_file_path)  # 文件总大小
-
-
 
         print('remote filesize [{}]'.format(remote_file_size))
         cmpsize = 0  # 下载文件初始大小
@@ -173,6 +175,7 @@ class FTP_OPS(object):
             sys.stdout.flush()
             if cur == total:
                 sys.stdout.write('\n')
+
 
 if __name__ == '__main__':
     FTP_IP = '10.1.208.41'
