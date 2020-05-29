@@ -4,6 +4,7 @@
 # @Author  : hyang
 # @File    : cp_batch.py
 # @Software: PyCharm
+# 批量拷贝文件
 
 import os
 import shutil

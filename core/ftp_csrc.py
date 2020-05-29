@@ -11,7 +11,6 @@
 import os
 import sys
 import time
-from concurrent.futures import ThreadPoolExecutor
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)  # 加入环境变量
@@ -22,7 +21,7 @@ from utils import my_logset
 from utils.oracle_utils import Ora_util
 from utils.ftp_util import FTP_OPS
 
-re_csrc = r'^SC_\d{8}_\d{8}_\d+N_A01|A02|A03|A04|A05|A06|A07|A08|A09|A10|A11|A12|A13_Z\.TXT$'
+# re_csrc = r'^SC_\d{8}_\d{8}_\d+N_A01|A02|A03|A04|A05|A06|A07|A08|A09|A10|A11|A12|A13_Z\.TXT$'
 # 压缩文件名正则匹配串
 
 CSRC_TABLE = 'CSDC_FILE_SEND_LOG'
@@ -126,47 +125,47 @@ def update_csrc(col_dict: dict, where_dict: dict):
         csrc_ora.rollback()
 
 
-def zip_file(src:str, dst:str, file_li: list):
-    """
-    压缩文件
-    :param src: 源目录
-    :param dst: 目标目录
-    :param file_li: 文件列表
-    :return:
-    """
-    zf = ZFile(CSRC_LOG_FILE)
-
-    executor = ThreadPoolExecutor(12, 'thread')  # 线程池
-    start = time.time()
-    if os.path.isdir(src):  # 判断是否为目录
-        os.chdir(src)
-        res = []  # 返回结果
-        if not os.path.exists(dst):
-            os.makedirs(dst)
-        for file in file_li: # 遍历所有文件，
-            file_prefix = os.path.splitext(
-                os.path.join(src, file))  # 得到文件前缀和后缀名
-            if len(file_prefix) > 1 and 'TXT' in file_prefix[1]:
-                future = executor.submit(zf.zip_file,
-                                         file, '%s.zip' %
-                                         os.path.splitext(
-                                             os.path.join(
-                                                 dst, file))[0])  # 异步提交任务压缩文件
-
-                res.append(future)
-        executor.shutdown()  # 等待所有线程执行完毕
-        print("++++>")
-        for r in res:
-            print(r.result())  # 打印结果
-            if r.result().get('flag'):
-                update_csrc({'FILE_COMPRE_FLG':'S'},{'FILE_NAME': r.result().get('file_name')})
-            else:
-                update_csrc({'FILE_COMPRE_FLG': 'F'}, {'FILE_NAME': r.result().get('file_name')})
-
-    else:
-        csrc_log_obj.warn('目录不存在[{}]'.format(src))
-    end = time.time()
-    print(end - start)
+# def zip_file(src:str, dst:str, file_li: list):
+#     """
+#     压缩文件
+#     :param src: 源目录
+#     :param dst: 目标目录
+#     :param file_li: 文件列表
+#     :return:
+#     """
+#     zf = ZFile(CSRC_LOG_FILE)
+#
+#     executor = ThreadPoolExecutor(12, 'thread')  # 线程池
+#     start = time.time()
+#     if os.path.isdir(src):  # 判断是否为目录
+#         os.chdir(src)
+#         res = []  # 返回结果
+#         if not os.path.exists(dst):
+#             os.makedirs(dst)
+#         for file in file_li: # 遍历所有文件，
+#             file_prefix = os.path.splitext(
+#                 os.path.join(src, file))  # 得到文件前缀和后缀名
+#             if len(file_prefix) > 1 and 'TXT' in file_prefix[1]:
+#                 future = executor.submit(zf.zip_file,
+#                                          file, '%s.zip' %
+#                                          os.path.splitext(
+#                                              os.path.join(
+#                                                  dst, file))[0])  # 异步提交任务压缩文件
+#
+#                 res.append(future)
+#         executor.shutdown()  # 等待所有线程执行完毕
+#         print("++++>")
+#         for r in res:
+#             print(r.result())  # 打印结果
+#             if r.result().get('flag'):
+#                 update_csrc({'FILE_COMPRE_FLG':'S'},{'FILE_NAME': r.result().get('file_name')})
+#             else:
+#                 update_csrc({'FILE_COMPRE_FLG': 'F'}, {'FILE_NAME': r.result().get('file_name')})
+#
+#     else:
+#         csrc_log_obj.warn('目录不存在[{}]'.format(src))
+#     end = time.time()
+#     print(end - start)
 
 
 def filter_file(dir:str,tp:str):

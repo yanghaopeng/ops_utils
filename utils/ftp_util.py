@@ -16,6 +16,9 @@ from utils.time_utils import run_time
 import sys
 import math
 from utils import file_util
+"""
+ftp操作上传和下载
+"""
 
 
 class FTP_OPS(object):
@@ -81,9 +84,7 @@ class FTP_OPS(object):
         try:
             ftp.cwd(remotepath)  # 进入远程目录
             self.db_log.info(
-                    "found folder [{}] in ftp server, upload processing.".format(remotepath))
-
-
+                "found folder [{}] in ftp server, upload processing.".format(remotepath))
             print('进入目录', ftp.pwd())
             # 将传输模式改为二进制模式 ,避免提示 ftplib.error_perm: 550 SIZE not allowed in
             # ASCII
@@ -95,6 +96,10 @@ class FTP_OPS(object):
         except error_perm as e:
             self.db_log.warn('文件[{}]传输有误,{}'.format(file, str(e)))
         except TimeoutError:
+            self.db_log.warn('文件[{}]传输超时'.format(file))
+            pass
+        except Exception as e:
+            self.db_log.warn('文件[{}]传输异常'.format(file, str(e)))
             pass
         finally:
             fp.close()
@@ -178,6 +183,14 @@ class FTP_OPS(object):
 
 
 if __name__ == '__main__':
+    host = "10.0.0.1"
+    username = "test"
+    password = "test"
+    port = "21"
+    ftp_file_path = "/data/an/1.zip"
+    dst_file_path = "/data/tmp/1.zip"
+    ftp = FTP_OPS(host=host, username=username, password=password, port=port)
+    ftp.download_file(ftp_file_path=ftp_file_path, dst_file_path=dst_file_path)
     FTP_IP = '10.1.208.41'
     FTP_PORT = 21
     FTP_USER = 'tscms'
