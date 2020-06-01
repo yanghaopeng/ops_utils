@@ -32,11 +32,7 @@ FTP_USER = dealIni.readZdFtp("USER")
 FTP_PWD = dealIni.readZdFtp("PWD")
 print(FTP_IP,FTP_PORT)
 
-# ftp连接参数
-#FTP_IP = '172.16.2.113'
-#FTP_PORT = 21
-#FTP_USER = 'ipfput'
-#FTP_PWD = 'ipfput888'
+
 CSRC_LOG_FILE = 'test_csrc_%s.log' % get_curr_dt()
 
 def get_dt():
