@@ -8,9 +8,9 @@
 
 import os
 import configparser
-# import sys
-# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# sys.path.append(BASE_DIR)  # 加入环境变量
+import sys
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(BASE_DIR)  # 加入环境变量
 from conf import settings
 
 config = configparser.ConfigParser()
@@ -72,6 +72,6 @@ def readZdFtp(option):
     :return:
     """
     file_path = settings.zdftp_dir
-    print(readOption(file_path, "zdftp", option))
+    return readOption(file_path, "zdftp", option)
 
 
