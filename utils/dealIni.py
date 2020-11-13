@@ -74,4 +74,13 @@ def readZdFtp(option):
     file_path = settings.zdftp_dir
     return readOption(file_path, "zdftp", option)
 
+def readZzjc(option):
+    """
+    读取中证监测配置
+    :param option:
+    :return:
+    """
+    file_path = settings.zzjc_dir
+    return readOption(file_path, "zzjc", option)
+
 

@@ -15,7 +15,7 @@ init(autoreset=True)  # 初始化，并且设置颜色设置自动恢复
 
 # 根据信息不同设置不同的颜色格式
 info_color = Fore.GREEN + Style.BRIGHT
-warn_color = Fore.YELLOW + Style.BRIGHT
+warn_color = Fore.BLUE + Style.BRIGHT
 debug_color = Fore.MAGENTA + Style.BRIGHT
 error_color = Fore.RED + Style.BRIGHT
 
