@@ -25,9 +25,9 @@ def print_arg(arg):
 
     for ind, val in enumerate(arg):
         if ind == 0:
-            print_warn(r"------执行%s输入参数为--------" % val)
+            print_error(r"------执行%s输入参数为--------" % val)
         else:
-            print_info(val, end=",")
+            print_info(val)
 
 
 def getLine_num(filename):
@@ -97,21 +97,21 @@ def main_arg(v_arg):
     :param v_arg:
     :return:
     """
-    if len(v_arg) != 2:
+    if len(v_arg) != 3:
         # print(platform.system())
         print_arg(v_arg)
-        print_warn("---参数输入错误--")
-        print_warn("delLine 文件名 删除行")
+        print_error("---参数输入错误--")
+        print_error("delLine 文件名 删除行")
     else:
         f_name = v_arg[1].strip()
         line_no = v_arg[2].strip()  # 删除行
-    if not line_no.isdigit():
-        print_error("行数必须为数字" )
-    else:
-        if not os.path.exists(f_name):
-            print_error("%s文件不存在" % f_name)
+        if not line_no.isdigit():
+            print_error("行数必须为数字" )
         else:
-            main(f_name, line_no)
+            if not os.path.exists(f_name):
+                print_error("%s文件不存在" % f_name)
+            else:
+                main(f_name, line_no)
 
 
 def main(f_name,line_no):
@@ -128,7 +128,7 @@ def main(f_name,line_no):
 
     line_num = getLine_num(f_name)  # 获得文件总行数
     if line_no > line_num:
-        print_error("行数大于文件行数 " + line_num)
+        print_error("输入行数{}大于文件行数 {}".format(line_no,line_num))
     else:
         print("文件总行数={},删除第{}行" .format(line_num, line_no))
         remove_Line(f_name, line_no)
